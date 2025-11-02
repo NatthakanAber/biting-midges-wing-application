@@ -1,5 +1,4 @@
 import streamlit as st
-import os
 from PIL import Image
 import torch
 import torch.nn as nn
@@ -84,7 +83,7 @@ no_of_classes = len(class_names)
 # get predict class
 frozen_base = True  # this must be the same as the training model
 model_name = 'EfficientNet_B0'
-model_path = os.path.join('models/', model_name + '.pth')
+model_path = 'models/', model_name + '.pth' #os.path.join('models/', model_name + '.pth')
 
 # add progress bar !!!
 
