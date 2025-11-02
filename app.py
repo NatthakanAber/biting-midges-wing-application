@@ -1,10 +1,11 @@
 import streamlit as st
 import os
+from PIL import Image
 import torch
 import torch.nn as nn
 import torch.optim as optim
 from torchvision import models
-from PIL import Image
+
 
 def model_setup(model_name, no_of_classes, frozen_base):
     # Setup device agnostic code
