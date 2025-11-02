@@ -1,5 +1,5 @@
 os
 pillow=10.4.0
 streamlit=1.40.1
-torch=2.3.0s
+torch=2.3.0
 torchvision=0.18.1
