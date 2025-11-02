@@ -1,9 +1,60 @@
 import streamlit as st
-from pickle import load
 import os
 import torch
-import model_data_setup
+import torch.nn as nn
+import torch.optim as optim
+from torchvision import models
 from PIL import Image
+
+def model_setup(model_name, no_of_classes, frozen_base):
+    # Setup device agnostic code
+    device = "cuda" if torch.cuda.is_available() else "cpu"
+    #print(device)
+
+    # Set the manual seeds
+    torch.manual_seed(42)
+    torch.cuda.manual_seed(42)
+
+    if frozen_base:
+        # Set up the model with pretrained weights and freeze base layers
+        model, weights = eval(model_name + '(no_of_classes, frozen_base=True)')
+    else:
+        # Set up the model with pretrained weights and not freezing base layers
+        model, weights = eval(model_name + '(no_of_classes, frozen_base=False)')
+
+    # seed it to the target device
+    model = model.to(device)
+
+    # Get the transforms used to create our pretrained weights
+    pretrained_transforms = weights.transforms()
+
+    # Define criterion and optimizer
+    criterion = nn.CrossEntropyLoss()
+    optimizer = optim.Adam(model.parameters()) #, default lr=0.001
+
+    return model, pretrained_transforms, criterion, optimizer, device
+
+def EfficientNet_B0(no_of_classes, frozen_base):
+    # Set up the model with pretrained weights
+    weights = models.EfficientNet_B0_Weights.DEFAULT
+    model = models.efficientnet_b0(weights=weights) #.to(device)
+
+    if frozen_base:
+        # Freeze all base layers in the "features" section of the model (the feature extractor) by setting requires_grad=False
+        for param in model.features.parameters():
+            param.requires_grad = False
+        for param in model.classifier.parameters():
+            param.requires_grad = True
+    else:
+        print('Not frozen_base')
+
+    # Recreate the classifier layer
+    model.classifier = torch.nn.Sequential(
+        torch.nn.Dropout(p=0.2, inplace=True),
+        torch.nn.Linear(in_features=1280,
+                        out_features=no_of_classes,
+                        bias=True))
+    return model, weights
 
 def predict(model, pretrained_transforms, image):
     ''' check again from https://www.learnpytorch.io/06_pytorch_transfer_learning/'''
@@ -13,8 +64,6 @@ def predict(model, pretrained_transforms, image):
     outputs = model(transformed_image.to(device))
     _, y_preds = torch.max(outputs, 1)
     return y_preds
-
-
 
 #---- MAIN ------
 st.set_page_config(
@@ -39,9 +88,8 @@ model_path = os.path.join('models/', model_name + '.pth')
 # add progress bar !!!
 
 # create model, get pretrained_transform from the model
-model, pretrained_transforms, criterion, optimizer, device = model_data_setup.model_setup(model_name,
-                                                                                          no_of_classes,
-                                                                                          frozen_base=frozen_base)
+model, pretrained_transforms, criterion, optimizer, device = model_setup(model_name,no_of_classes,
+                                                                         frozen_base=frozen_base)
 # load best model state saved from the training process
 model.load_state_dict(torch.load(model_path, weights_only=True, map_location="cpu"))
 
