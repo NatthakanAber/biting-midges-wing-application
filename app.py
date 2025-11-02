@@ -4,7 +4,7 @@ from PIL import Image
 import torch
 import torch.nn as nn
 import torch.optim as optim
-from torchvision import models
+import torchvision
 
 
 def model_setup(model_name, no_of_classes, frozen_base):
@@ -37,8 +37,8 @@ def model_setup(model_name, no_of_classes, frozen_base):
 
 def EfficientNet_B0(no_of_classes, frozen_base):
     # Set up the model with pretrained weights
-    weights = models.EfficientNet_B0_Weights.DEFAULT
-    model = models.efficientnet_b0(weights=weights) #.to(device)
+    weights = torchvision.models.EfficientNet_B0_Weights.DEFAULT
+    model = torchvision.models.efficientnet_b0(weights=weights) #.to(device)
 
     if frozen_base:
         # Freeze all base layers in the "features" section of the model (the feature extractor) by setting requires_grad=False
