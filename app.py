@@ -94,7 +94,7 @@ model, pretrained_transforms, criterion, optimizer, device = model_setup(model_n
 model.load_state_dict(torch.load(model_path, weights_only=True, map_location="cpu"))
 
 with st.container():#st.form('main_form'):
-    uploaded_image = st.file_uploader(label="Upload an image (recommended image resolution is 491x368):", key='uploaded_image', type=['tif'], accept_multiple_files=False)
+    uploaded_image = st.file_uploader(label="Upload an image (recommended 4X image, file types: 'tif', 'jpg', 'jpeg', 'HEIC', 'png'):", key='uploaded_image', type=['tif', 'jpg', 'jpeg', 'HEIC', 'png'], accept_multiple_files=False)
     img_container = st.container(border=True)#,horizontal=True, horizontal_alignment="right")
     if uploaded_image is not None:
         # show image
