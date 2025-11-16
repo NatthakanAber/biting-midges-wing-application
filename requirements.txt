@@ -1,4 +1,7 @@
 streamlit
 pillow
-torch
-torchvision
+numpy
+pandas
+sklearn
+PIL
+pickle
